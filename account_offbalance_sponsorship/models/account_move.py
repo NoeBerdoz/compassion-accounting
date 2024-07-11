@@ -38,19 +38,22 @@ class AccountMoveLine(models.Model):
         )
 
     def reconcile(self):
-        # check if there is a currency diff and relaod the invoice with the rate received
+        # check if there is a currency diff
+        # and reload the invoice with the rate received
         filtered_item = self.filtered(
-            lambda l: l.journal_id != self.company_id.currency_exchange_journal_id
+            lambda line: line.journal_id != self.company_id.currency_exchange_journal_id
         )
         total = total_curr = 0
-        for l in filtered_item:
-            total = l.debit - l.credit + total
-            total_curr = l.amount_currency + total_curr
+        for line in filtered_item:
+            total = line.debit - line.credit + total
+            total_curr = line.amount_currency + total_curr
         if total != 0 and total_curr == 0:
             inv_to_refresh = filtered_item.filtered(
-                lambda l: l.move_id.journal_id.type == "sale"
+                lambda line: line.move_id.journal_id.type == "sale"
             ).move_id
-            nr = filtered_item.filtered(lambda l: l.move_id.journal_id.type != "sale")
+            nr = filtered_item.filtered(
+                lambda line: line.move_id.journal_id.type != "sale"
+            )
             new_rate = sum(n.amount_currency for n in nr) / sum(
                 n.debit - n.credit for n in nr
             )
@@ -96,7 +99,9 @@ class AccountMoveLine(models.Model):
                 ids_to_unlink = self.env["account.move.line"]
                 for move_name in inv_move.mapped("name"):
                     ids_to_unlink += rec_lines.filtered(
-                        lambda l: l.account_id.id != off_rec and l.name == move_name
+                        lambda line, current_name=move_name: line.account_id.id
+                        != off_rec
+                        and line.name == current_name
                     )
                 pmt.line_ids -= ids_to_unlink
                 pmt.write({"state": "posted"})

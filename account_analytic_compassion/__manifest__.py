@@ -42,7 +42,6 @@
     ],
     "data": [
         "views/product_view.xml",
-        "views/res_config_setting_view.xml",
         "views/account_asset_view.xml",
     ],
     "demo": ["analytic_account_data.xml"],
