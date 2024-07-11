@@ -257,7 +257,9 @@ class ContractGroup(models.Model):
                 starting_offset, group.advance_billing_months + 1, group.month_interval
             ):
                 # Calculate the current invoicing date for this offset
-                current_invoicing_date = invoicing_date + relativedelta(months=invoice_offset)
+                current_invoicing_date = invoicing_date + relativedelta(
+                    months=invoice_offset
+                )
 
                 # Check if invoice generation should be skipped for this date
                 if group._should_skip_invoice_generation(current_invoicing_date):
@@ -331,7 +333,10 @@ class ContractGroup(models.Model):
             ]
         )
         # Check for contract group suspension
-        is_suspended = self.invoice_suspended_until and self.invoice_suspended_until > invoicing_date
+        is_suspended = (
+            self.invoice_suspended_until
+            and self.invoice_suspended_until > invoicing_date
+        )
 
         return bool(dangling_invoices) or is_suspended
 
