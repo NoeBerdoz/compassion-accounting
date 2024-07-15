@@ -28,7 +28,7 @@ class AccountPaymentLine(models.Model):
         move_line is not reconciled
         """
         for rec in self:
-            if not rec.move_line_id.full_reconcile_id:
+            if 'paid' not in rec.payment_ids.reconciled_invoice_ids.mapped('payment_state'):
                 rec._post_free_message(str(rsn))
                 if self.env.context.get("unlink_line", False):
                     rec.unlink()
