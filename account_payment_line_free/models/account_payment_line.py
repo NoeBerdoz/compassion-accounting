@@ -35,6 +35,8 @@ class AccountPaymentLine(models.Model):
                 else:
                     rec.move_line_id = False
                     rec.returned = True
+                    rec.payment_ids.action_draft()
+                    rec.payment_ids.action_cancel()
             else:
                 raise exceptions.UserError(
                     _("Payment is reconciled and cannot be cancelled.")
