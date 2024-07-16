@@ -28,13 +28,17 @@ class AccountPaymentLine(models.Model):
         move_line is not reconciled
         """
         for rec in self:
-            if not rec.move_line_id.full_reconcile_id:
+            if "paid" not in rec.payment_ids.reconciled_invoice_ids.mapped(
+                "payment_state"
+            ):
                 rec._post_free_message(str(rsn))
                 if self.env.context.get("unlink_line", False):
                     rec.unlink()
                 else:
                     rec.move_line_id = False
                     rec.returned = True
+                    rec.payment_ids.action_draft()
+                    rec.payment_ids.action_cancel()
             else:
                 raise exceptions.UserError(
                     _("Payment is reconciled and cannot be cancelled.")
