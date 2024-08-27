@@ -481,7 +481,7 @@ class ContractGroup(models.Model):
         # has to be shared between all the contracts of the list
         reference_contract = contracts[0]
         company_id = reference_contract.company_id.id
-        partner_id = self._get_partner_for_contract(reference_contract).id
+        partner_id = self._get_partner_for_contract(reference_contract, gift_wizard).id
         journal = self.env["account.journal"].search(
             [("type", "=", "sale"), ("company_id", "=", company_id)], limit=1
         )
@@ -595,5 +595,5 @@ class ContractGroup(models.Model):
             # we should generate more invoices
             self.active_contract_ids.button_generate_invoices()
 
-    def _get_partner_for_contract(self, contract):
+    def _get_partner_for_contract(self, contract, gift_wizard=False):
         return contract.partner_id
