@@ -73,7 +73,7 @@ class AccountMove(models.Model):
     def action_invoice_paid(self):
         """Call invoice_paid method on related contracts."""
         res = super().action_invoice_paid()
-        for invoice in self:
+        for invoice in self.filtered(lambda i: i.payment_state == "paid"):
             contracts = invoice.mapped("invoice_line_ids.contract_id")
             contracts.invoice_paid(invoice)
         return res
